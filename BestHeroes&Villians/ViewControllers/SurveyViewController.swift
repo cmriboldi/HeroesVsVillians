@@ -17,7 +17,7 @@ class SurveyViewController: UIViewController {
         static let heroColor: UIColor = UIColor(rgb: 0xCC48C6)
         static let villianColor = UIColor(rgb: 0x0A3284)
         static let heroTitle = "Hero"
-        static let villianTitle = "Villian"
+        static let villianTitle = "Villain"
         static let heroDictionary = [0:HeroInfo(title: Constants.heroTitle, color: Constants.heroColor),
                                      1:HeroInfo(title: Constants.villianTitle, color: Constants.villianColor)]
     }
@@ -35,13 +35,30 @@ class SurveyViewController: UIViewController {
     //
     @IBOutlet weak var heroTypeSelector: UISegmentedControl!
     @IBOutlet weak var heroNameTextField: UITextField!
+    @IBOutlet weak var heroPowersTextField: UITextField!
     @IBOutlet weak var heroSubmitButton: UIButton!
     
     //
     // MARK: - IBActions
     //
     @IBAction func submitHeroPressed(_ sender: Any) {
-        print("submit pressed")
+        guard let name = heroNameTextField.text, !name.isEmpty,
+              let powers = heroPowersTextField.text, !powers.isEmpty else {
+            return
+        }
+        
+        let heroType = SurveyController.getHeroKey(for: heroTypeSelector.selectedSegmentIndex)
+        
+        SurveyController.putHero(withType: heroType, name: name, powers: powers) { (success) in
+            print("putting hero was successful: \(success)")
+            guard success else { return }
+            
+            DispatchQueue.main.async {
+                self.heroNameTextField.text = ""
+                self.heroPowersTextField.text = ""
+            }
+        }
+        
     }
     
     @IBAction func selectedHeroType(_ sender: Any) {
@@ -61,7 +78,8 @@ class SurveyViewController: UIViewController {
     // MARK: - Helpers
     //
     func setNameTextFieldPlaceholder(for index: Int) {
-        heroNameTextField.placeholder = "Enter your favorite \((Constants.heroDictionary[index]?.title) ?? "Hero") "
+        heroNameTextField.placeholder = "Enter your favorite \((Constants.heroDictionary[index]?.title) ?? "Hero")"
+        heroPowersTextField.placeholder = "Enter you \((Constants.heroDictionary[index]?.title) ?? "Hero")'s superpower"
     }
 }
 
